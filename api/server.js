@@ -36,10 +36,10 @@ server.post('/api/users', ( req, res ) =>{
     const errMessage = {message:'There was an error while saving the user to the database'}
     if(isValid){
         db.insert(newUser)
-        .then( result => res.status(201).json(result).end() )
-        .catch( result => res.status(500).json(errMessage).end() )
+        .then( result => res.status(201).json(result) )
+        .catch( result => res.status(500).json(errMessage) )
     }else{
-        res.status(400).json(unCompleteMessage).end()
+        res.status(400).json(unCompleteMessage)
     }  
 })
 
@@ -51,9 +51,75 @@ server.post('/api/users', ( req, res ) =>{
 server.get('/api/users', (req, res) => {
     const errMessage = {message:'The users information could not be retrieved'}
     db.find()
-    .then(result => res.status(200).json(result).end())
-    .catch(result => res.status(500).json(errMessage).end())
+    .then(result => res.status(200).json(result))
+    .catch(result => res.status(500).json(errMessage))
 })
+
+/* 
+    GET	
+    /api/users/:id	
+    Returns the user object with the specified id. 
+*/
+server.get('/api/users/:id', (req, res) =>{
+    const notFoundMessage = { message: "The user with the specified ID does not exist" } 
+    const errMessage = {message:'The users information could not be retrieved'}
+    db.findById(req.params.id)
+    .then(result => {
+        if( result != null ){
+            res.status(200).json(result)
+        }else{
+            res.status(404).json(notFoundMessage)
+        }
+    })
+    .catch(result => res.status(500).json(errMessage))
+})
+
+/* 
+    DELETE
+    /api/users/:id	
+    Removes the user with the specified id and returns the deleted user.
+*/
+server.delete('/api/users/:id', (req, res) =>{
+    const notFoundMessage = { message: "The user with the specified ID does not exist" } 
+    const errMessage = {message:'The user could not be removed'}
+    db.remove(req.params.id)
+    .then(result => {
+        if( result != null ){
+            res.status(200).json(result)
+        }else{
+            res.status(404).json(notFoundMessage)
+        }
+    })
+    .catch(result => res.status(500).json(errMessage))
+})
+
+/* 
+    PUT
+    /api/users/:id	
+    Updates the user with the specified id using data from the request body. Returns the modified user
+*/
+server.put('/api/users/:id', (req, res) =>{
+    const notBodyMessage = { message: "Please provide name and bio for the user" } 
+    const notFoundUser = { message: "The user with the specified ID does not exist" } 
+    const errMessage = {message:'The user information could not be modified'}
+    const {name, bio} = req.body
+    const isOkBody = name != null && bio != null 
+    // console.log(`name : ${name} -- bio : ${bio} ///// isOkBody : ${isOkBody} `)
+    if(isOkBody){
+        db.update(req.params.id, req.body)
+        .then(result => {
+            if( result != null ){
+                res.status(200).json(result)
+            }else{
+                res.status(404).json(notFoundUser)
+            }
+        })
+        .catch(result => res.status(500).json(errMessage))
+    }else{
+        res.status(400).json(notBodyMessage)
+    }
+})
+
 
 
 module.exports = server  /* {
