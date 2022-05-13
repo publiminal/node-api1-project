@@ -8,7 +8,7 @@ server.use(express.json())
 
 server.get('/', (req, res) => {
     console.log('I received a request!');
-    res.send("<h1>Hello world!</h1><p>Here is a paragraph</p>");
+    res.send("<h1>Hello world!!</h1><p>Here is a paragraph</p>");
 });
 
 /* 
